@@ -54,7 +54,8 @@ function Mydiary() {
       {/* <nav className=" flex flex-col items-center sticky top-0 bg-[#00000000]"> */}
       <nav className=" w-full grid grid-cols-4 grid-rows-2 gap-1 py-3 sticky top-0">
         <Link href={"#"} className=" col-span-3 font-bold text-[2rem]">
-          {username}'s diary
+          {username}
+          {"'s diary"}
         </Link>
         <button
           className=" bg-white rounded-lg cursor-pointer"
