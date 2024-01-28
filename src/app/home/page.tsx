@@ -4,6 +4,7 @@ import { checkPattern, loginProcess, registerProcess } from "./actions";
 import { hash256 } from "../utils/hash256";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import package_json from "./../../../package.json";
 
 function Home() {
   const router = useRouter();
@@ -30,20 +31,24 @@ function Home() {
 
   const register = async () => {
     const { username } = getUserPass();
-    const pattern = await checkPattern(username).then((result) => result);
-    !pattern &&
-      alert("username must be a-z or A-Z or 0-9 or - or _ 4-10 letters");
-    if (username && passwordRef.current.value && pattern) {
-      const res = await registerProcess(getUserPass());
-      if (res?.canRegister) {
-        alert("register success!");
-        router.push("/mydiary");
-      } else alert("user already exists!");
+    if (!username || !passwordRef.current.value) {
+      usernameRef.current.focus();
+    } else {
+      const pattern = await checkPattern(username).then((result) => result);
+      !pattern &&
+        alert("username must be a-z or 0-9 or - or _ or . 4-10 letters");
+      if (username && passwordRef.current.value && pattern) {
+        const res = await registerProcess(getUserPass());
+        if (res?.canRegister) {
+          alert("register success!");
+          router.push("/mydiary");
+        } else alert("user already exists!");
+      }
     }
   };
 
   return (
-    <div className=" flex flex-col justify-center items-center gap-3 m-5 rounded-lg p-3">
+    <div className=" flex flex-col justify-center items-center gap-3 rounded-lg p-3 w-full">
       <h1 className=" text-[7rem] my-10">Diary</h1>
       <input
         className=" p-3 rounded-lg w-full outline-weight4 bg-white focus:outline-dotted outline-2 "
@@ -77,9 +82,11 @@ function Home() {
         }`}
       >
         <p className=" bg-[#00000000] text-[2rem] text-center px-20">
-          บันทึกเรื่องราวต่าง ๆ ที่ไม่อาจลบได้ในชีวิต
+          บันทึกเรื่องราวต่าง ๆ ในชีวิต
         </p>
-        <h1 className=" bg-[#00000000]">Diary v.1.0.0 by Geeleed</h1>
+        <h1 className=" bg-[#00000000]">
+          Diary v.{package_json.version} by Geeleed
+        </h1>
         <br />
         <Link
           href={"https://github.com/Geeleed/diary-app"}

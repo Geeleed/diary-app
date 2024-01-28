@@ -1,9 +1,16 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { addDiary, getDiary, getUsernameFromToken, logout } from "./actions";
+import {
+  addDiary,
+  deleteDocumentBy_id,
+  getDiary,
+  getUsernameFromToken,
+  logout,
+} from "./actions";
 import Link from "next/link";
 
 function Mydiary() {
+  const [delete_id, setDelete_id] = useState(null);
   const contentRef = useRef<any>(null);
   const [username, setUsername] = useState("");
   const [diaries, setDiaries] = useState<any>([]);
@@ -47,12 +54,15 @@ function Mydiary() {
   useEffect(() => {
     (async () =>
       await getUsernameFromToken().then((res) => setUsername(res)))();
-    (async () => await getDiary().then((res) => setDiaries(res.reverse())))();
+    (async () =>
+      await getDiary().then((res) => setDiaries(JSON.parse(res).reverse())))();
   }, []);
+  useEffect(() => {
+    setDiaries(diaries.filter((item: any) => item._id !== delete_id));
+  }, [delete_id]);
   return (
-    <div className=" flex flex-col px-5">
-      {/* <nav className=" flex flex-col items-center sticky top-0 bg-[#00000000]"> */}
-      <nav className=" w-full grid grid-cols-4 grid-rows-2 gap-1 py-3 sticky top-0">
+    <div className=" flex flex-col px-5 my-5 w-[25rem]">
+      <nav className=" w-full grid grid-cols-4 grid-rows-2 gap-2 py-3 sticky top-0">
         <Link href={"#"} className=" col-span-3 font-bold text-[2rem]">
           {username}
           {"'s diary"}
@@ -68,7 +78,7 @@ function Mydiary() {
           className=" bg-weight4 rounded-lg cursor-pointer"
           onClick={() => setHiddenPopup((prev) => !prev)}
         >
-          {hiddenPopup ? "Add diary" : "close"}
+          {hiddenPopup ? "Add diary" : "Close"}
         </button>
       </nav>
       <section>
@@ -91,7 +101,11 @@ function Mydiary() {
       </section>
       <article className=" flex flex-col gap-2 mt-5">
         {diaries.map((item: any, index: number) => (
-          <DiaryItem key={index} diaryDocument={item} />
+          <DiaryItem
+            key={index}
+            diaryDocument={item}
+            setDelete_id={setDelete_id}
+          />
         ))}
       </article>
     </div>
@@ -100,12 +114,32 @@ function Mydiary() {
 
 export default Mydiary;
 
-const DiaryItem = ({ diaryDocument }: any) => {
-  const { dayName, day, month, year, content, hh, mm } = diaryDocument;
+const DiaryItem = ({ diaryDocument, setDelete_id }: any) => {
+  const { dayName, day, month, year, content, hh, mm, _id } = diaryDocument;
+  const deleteData = async () => {
+    if (confirm("Are you sure?")) {
+      await deleteDocumentBy_id(_id);
+      setDelete_id(_id);
+    }
+  };
   return (
     <section className=" border-b-2 border-weight4 border-dotted rounded-xl w-full p-3 bg-white">
-      <h3 className=" bg-white mb-1">
-        {dayName} {day} {month} {year} --- {hh}:{mm}
+      <h3 className=" bg-white mb-1 flex justify-between">
+        <p className=" bg-white">
+          {dayName} {day} {month} {year} --- {hh}:{mm}
+        </p>
+        <svg
+          onClick={async () => await deleteData()}
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          fill="#a39789"
+          className="bi bi-x-circle cursor-pointer bg-white"
+          viewBox="0 0 16 16"
+        >
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+        </svg>
       </h3>
       <p className=" bg-white w-full break-words">{content}</p>
     </section>

@@ -33,6 +33,6 @@ export const registerProcess = async ({ username, password }: UserPass) => {
 };
 
 export const checkPattern = async (username: string) => {
-  const pattern = /^[a-zA-Z0-9\-_]{4,10}$/;
+  const pattern = /^[a-z0-9\-_.]{4,10}$/;
   return pattern.test(username);
 };
