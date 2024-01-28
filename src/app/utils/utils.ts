@@ -21,8 +21,8 @@ export const hadUser = async (username: string) =>
 export const setToken = async ({ username, password }: isMember) => {
   const secretKey = await importJWK(secretJWK, "HS256");
   const token = await new SignJWT({
-    username: username,
-    password: password,
+    username,
+    password,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
