@@ -2,8 +2,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   addDiary,
+  addThenGetLatestDiary,
   deleteDocumentBy_id,
   getDiary,
+  getLatestDiary,
   getUsernameFromToken,
   logout,
 } from "./actions";
@@ -16,11 +18,13 @@ function Mydiary() {
   const [diaries, setDiaries] = useState<any>([]);
   const [hiddenPopup, setHiddenPopup] = useState(true);
   const makeObjectData = async () => {
+    const content = contentRef.current?.value;
+    contentRef.current.value = "";
     const now = new Date();
     const objectData = {
       hidden: false,
       username: username,
-      content: contentRef.current?.value,
+      content: content,
       hh: now.getHours(),
       mm: now.getMinutes(),
       ss: now.getMilliseconds(),
@@ -47,8 +51,8 @@ function Mydiary() {
   };
   const sendData = async () => {
     if (contentRef.current?.value) {
-      await addDiary(await makeObjectData());
-      window.location.reload();
+      const latestDoc = await addThenGetLatestDiary(await makeObjectData());
+      setDiaries((prev: any) => [JSON.parse(latestDoc)[0], ...prev]);
     } else alert("write something...");
   };
   useEffect(() => {

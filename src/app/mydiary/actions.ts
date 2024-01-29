@@ -22,11 +22,28 @@ export const addDiary = async (content: any) => {
 export const getDiary = async () => {
   const payload = await decryptToken();
   // console.log("getDiary", payload);
-  const { username, password }: any = payload;
+  const { username }: any = payload;
   const content = await mongodbConnectThenAggregate(contentAddress, [
     { $match: { username } },
   ]).then((res) => res);
   return JSON.stringify(content);
+};
+
+export const getLatestDiary = async () => {
+  const payload = await decryptToken();
+  const { username }: any = payload;
+  const content = await mongodbConnectThenAggregate(contentAddress, [
+    { $match: { username } },
+    { $sort: { clientTimestamp: -1 } },
+    { $limit: 1 },
+  ]).then((res) => res);
+  // console.log("getOneDiary", content);
+  return JSON.stringify(content);
+};
+
+export const addThenGetLatestDiary = async (content: any) => {
+  await addDiary(content);
+  return await getLatestDiary();
 };
 
 export const deleteDocumentBy_id = async (_id: any) => {
