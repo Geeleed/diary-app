@@ -1,83 +1,48 @@
 "use client";
-import React, { useRef, useState } from "react";
-import { checkPattern, loginProcess, registerProcess } from "./actions";
-import { hash256 } from "../utils/hash256";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import Link from "next/link";
 import package_json from "./../../../package.json";
+import Login from "./Login";
+import Register from "./Register";
 
 function Home() {
-  const router = useRouter();
-  const usernameRef = useRef<any>(null);
-  const passwordRef = useRef<any>(null);
   const [showHelp, setShowHelp] = useState(false);
-
-  const getUserPass = () => {
-    const username = usernameRef.current.value;
-    const password = hash256(username + passwordRef.current.value);
-    return { username, password };
-  };
-
-  const login = async () => {
-    const { username } = getUserPass();
-    const pattern = await checkPattern(username).then((result) => result);
-    if (username && passwordRef.current.value && pattern) {
-      const res = await loginProcess(getUserPass()).then((res) => res);
-      res?.canLogin
-        ? router.push("/mydiary")
-        : alert("username or password wrong!");
-    } else alert("username or password wrong!");
-  };
-
-  const register = async () => {
-    const { username } = getUserPass();
-    if (!username || !passwordRef.current.value) {
-      usernameRef.current.focus();
-    } else {
-      const pattern = await checkPattern(username).then((result) => result);
-      !pattern &&
-        alert("username must be a-z or 0-9 or - or _ or . 4-10 letters");
-      if (username && passwordRef.current.value && pattern) {
-        const res = await registerProcess(getUserPass());
-        if (res?.canRegister) {
-          alert("register success!");
-          router.push("/mydiary");
-        } else alert("user already exists!");
-      }
-    }
-  };
+  const [frontPage, setFrontPage] = useState<React.JSX.Element>(<Login />);
+  const [btnSw, setBtnSw] = useState("Register");
 
   return (
     <div className=" flex flex-col justify-center items-center gap-3 rounded-lg p-3 w-full">
-      <h1 className=" text-[7rem] my-10">Diary</h1>
-      <input
-        className=" p-3 rounded-lg w-full outline-weight4 bg-white focus:outline-dotted outline-2 "
-        onKeyDown={(e) => e.key === "Enter" && login()}
-        ref={usernameRef}
-        type="text"
-        placeholder="username"
-      />
-      <input
-        className=" p-3 rounded-lg w-full outline-weight4 bg-white focus:outline-dotted outline-2 "
-        onKeyDown={(e) => e.key === "Enter" && login()}
-        ref={passwordRef}
-        type="password"
-        placeholder="password"
-      />
-      <button className=" bg-weight4 w-full p-2 rounded-lg" onClick={login}>
-        Log in
+      {frontPage}
+      <div className=" border border-weight2 w-3/4 rounded-lg relative my-2">
+        <h1 className=" absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-weight1 flex justify-center items-center text-weight5 ">
+          OR
+        </h1>
+      </div>
+      <button
+        className=" text-weight5 "
+        onClick={() => {
+          if (btnSw === "Register") {
+            setFrontPage(<Register />);
+            setBtnSw("Log in");
+          } else {
+            setFrontPage(<Login />);
+            setBtnSw("Register");
+          }
+        }}
+      >
+        {btnSw}
       </button>
-      <button className=" bg-weight2 w-full p-2 rounded-lg" onClick={register}>
-        Register
-      </button>
-      <p className=" cursor-pointer" onClick={() => setShowHelp(true)}>
-        Help
+      <p
+        className=" cursor-pointer mt-8 text-weight5"
+        onClick={() => setShowHelp(true)}
+      >
+        Diary v.{package_json.version} by Geeleed
       </p>
       <div
         onClick={() => setShowHelp(false)}
         className={`${
           showHelp
-            ? " cursor-pointer absolute top-0 left-0 w-full h-[100vh] flex flex-col justify-center items-center bg-[#000000aa] text-white"
+            ? " cursor-pointer absolute top-0 left-0 w-full h-[100vh] flex flex-col justify-center items-center bg-[#000000aa] text-white backdrop-blur-sm"
             : "hidden"
         }`}
       >

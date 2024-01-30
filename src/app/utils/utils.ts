@@ -14,10 +14,23 @@ export const isMember = async ({ username, password }: isMember) =>
   await mongodbConnectThenAggregate(dataAddress, [
     { $match: { username, password } },
   ]).then((data) => data[0] !== undefined);
+
 export const hadUser = async (username: string) =>
   await mongodbConnectThenAggregate(dataAddress, [
     { $match: { username } },
   ]).then((data) => data[0] !== undefined);
+
+export const hadUserBirth = async ({
+  username,
+  birthDate,
+}: {
+  username: string;
+  birthDate: string;
+}) =>
+  await mongodbConnectThenAggregate(dataAddress, [
+    { $match: { username, birthDate } },
+  ]).then((data) => data[0] !== undefined);
+
 export const setToken = async ({ username, password }: isMember) => {
   const secretKey = await importJWK(secretJWK, "HS256");
   const token = await new SignJWT({

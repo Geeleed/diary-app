@@ -1,12 +1,21 @@
 "use server";
 
-import { mongodbConnectThenInsert } from "@geeleed/short-mongodb";
-import { hadUser, isMember, setToken } from "../utils/utils";
+import {
+  mongodbConnect,
+  mongodbConnectThenAggregate,
+  mongodbConnectThenInsert,
+} from "@geeleed/short-mongodb";
+import { hadUser, hadUserBirth, isMember, setToken } from "../utils/utils";
 import { dataAddress } from "../utils/dataAddress";
 
 interface UserPass {
   username: string;
   password: string;
+}
+interface UserPassBirth {
+  username: string;
+  password: string;
+  birthDate: string;
 }
 export const loginProcess = async ({ username, password }: UserPass) => {
   try {
@@ -16,19 +25,53 @@ export const loginProcess = async ({ username, password }: UserPass) => {
       return { canLogin: true };
     } else return { canLogin: false };
   } catch (error) {
-    console.error(error);
+    console.error("loginProcess", error);
   }
 };
-export const registerProcess = async ({ username, password }: UserPass) => {
+export const registerProcess = async ({
+  username,
+  password,
+  birthDate,
+}: UserPassBirth) => {
   try {
     const member = await hadUser(username).then((res) => res);
     if (!member) {
-      await mongodbConnectThenInsert(dataAddress, { username, password });
+      await mongodbConnectThenInsert(dataAddress, {
+        username,
+        password,
+        birthDate,
+      });
       await setToken({ username, password });
       return { canRegister: true };
     } else return { canRegister: false };
   } catch (error) {
-    console.error(error);
+    console.error("registerProcess", error);
+  }
+};
+export const resetProcess = async ({
+  username,
+  password,
+  birthDate,
+}: UserPassBirth) => {
+  try {
+    const member = await hadUserBirth({ username, birthDate }).then(
+      (res) => res
+    );
+    if (member) {
+      const connection = await mongodbConnect(dataAddress.connectionString);
+      const collection = connection
+        .db(dataAddress.databaseName)
+        .collection(dataAddress.collectionName);
+      await collection.updateOne(
+        { username, birthDate },
+        { $set: { password } }
+      );
+      await connection.close();
+      await setToken({ username, password });
+      return { canReset: true };
+    } else return { canReset: false };
+  } catch (error) {
+    console.error("resetProcess", error);
   }
 };
 
