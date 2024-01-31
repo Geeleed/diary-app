@@ -63,3 +63,33 @@ export const getUsernameFromToken = async () => {
     console.error(error);
   }
 };
+
+export const filter = async (param: any) => {
+  const username = await getUsernameFromToken();
+  let { dateFrom, dateTo, mood } = param;
+  if (!dateFrom) dateFrom = 0;
+  if (!dateTo) dateTo = new Date().getTime();
+  if (!mood) mood = undefined;
+  if (mood) {
+    const res: string = await mongodbConnectThenAggregate(contentAddress, [
+      {
+        $match: {
+          username,
+          clientTimestamp: { $gte: dateFrom, $lte: dateTo },
+        },
+      },
+      { $match: { mood } },
+    ]).then((res) => JSON.stringify(res));
+    return res;
+  } else {
+    const res: string = await mongodbConnectThenAggregate(contentAddress, [
+      {
+        $match: {
+          username,
+          clientTimestamp: { $gte: dateFrom, $lte: dateTo },
+        },
+      },
+    ]).then((res) => JSON.stringify(res));
+    return res;
+  }
+};

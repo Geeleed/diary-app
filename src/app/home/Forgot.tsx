@@ -43,7 +43,7 @@ function Forgot(props: any): React.JSX.Element {
   };
 
   return (
-    <div className=" flex flex-col justify-center items-center gap-3 rounded-lg p-10 absolute bg-[#000000aa] top-1/2 -translate-y-1/2 w-full h-full z-10 backdrop-blur-sm">
+    <div className=" flex flex-col justify-center items-center gap-3 rounded-lg p-14 absolute bg-[#000000aa] top-1/2 -translate-y-1/2 z-10 backdrop-blur-sm">
       <h1 className=" text-[2rem] text-white">Reset password</h1>
       <input
         className=" p-3 rounded-lg w-full outline-weight4 bg-white focus:outline-dotted outline-2 "
