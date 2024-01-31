@@ -11,7 +11,7 @@ function DiaryContent({ image, content, link }: Props) {
     <>
       {image && (
         <Image
-          className=" rounded-md mt-3"
+          className=" rounded-md my-3"
           src={image}
           height={100}
           width={600}

@@ -70,7 +70,7 @@ export default function Mydiary() {
   const sendData = async () => {
     if (contentRef.current?.value || base64) {
       const latestDoc = await addThenGetLatestDiary(await makeObjectData());
-      setDiaries((prev: any) => [JSON.parse(latestDoc)[0], ...prev]);
+      setStorage((prev: any) => [JSON.parse(latestDoc)[0], ...prev]);
     } else alert("write something...");
   };
   useEffect(() => {
@@ -83,10 +83,12 @@ export default function Mydiary() {
         setDiaries(data);
       }))();
   }, []);
-  useEffect(() => {}, [diaries]);
   useEffect(() => {
-    setDiaries(diaries.filter((item: any) => item._id !== delete_id));
+    setStorage(storage.filter((item: any) => item._id !== delete_id));
   }, [delete_id]);
+  useEffect(() => {
+    setDiaries(storage);
+  }, [storage]);
 
   return (
     <div className=" flex flex-col px-1 mb-5 w-[25rem]">
@@ -135,7 +137,7 @@ export default function Mydiary() {
             <textarea
               className=" bg-white rounded-lg rounded-b-none w-full p-3 focus:outline-dotted focus:outline-2 outline-weight4 text-[1.2rem] "
               ref={contentRef}
-              rows={5}
+              rows={8}
               placeholder="writing..."
             ></textarea>
             {link && (
@@ -153,11 +155,11 @@ export default function Mydiary() {
                 width="40"
                 height="40"
                 fill="#a39789"
-                className="bi bi-file-earmark-image cursor-pointer hover:opacity-80 transition-all"
+                className="bi bi-camera cursor-pointer hover:opacity-80 transition-all"
                 viewBox="0 0 16 16"
               >
-                <path d="M6.502 7a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3" />
-                <path d="M14 14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zM4 1a1 1 0 0 0-1 1v10l2.224-2.224a.5.5 0 0 1 .61-.075L8 11l2.157-3.02a.5.5 0 0 1 .76-.063L13 10V4.5h-2A1.5 1.5 0 0 1 9.5 3V1z" />
+                <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z" />
+                <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0" />
               </svg>
               <input
                 ref={inputImageRef}
@@ -210,7 +212,7 @@ export default function Mydiary() {
       <article className=" flex flex-col gap-2 mb-12">
         {diaries.map((item: any) => (
           <DiaryItem
-            key={item.clientTimestamp}
+            key={item._id}
             diaryDocument={item}
             setDelete_id={setDelete_id}
           />
@@ -244,6 +246,7 @@ export default function Mydiary() {
           <path d="M2.5 0q-.25 0-.487.048l.194.98A1.5 1.5 0 0 1 2.5 1h.458V0zm2.292 0h-.917v1h.917zm1.833 0h-.917v1h.917zm1.833 0h-.916v1h.916zm1.834 0h-.917v1h.917zm1.833 0h-.917v1h.917zM13.5 0h-.458v1h.458q.151 0 .293.029l.194-.981A2.5 2.5 0 0 0 13.5 0m2.079 1.11a2.5 2.5 0 0 0-.69-.689l-.556.831q.248.167.415.415l.83-.556zM1.11.421a2.5 2.5 0 0 0-.689.69l.831.556c.11-.164.251-.305.415-.415zM16 2.5q0-.25-.048-.487l-.98.194q.027.141.028.293v.458h1zM.048 2.013A2.5 2.5 0 0 0 0 2.5v.458h1V2.5q0-.151.029-.293zM0 3.875v.917h1v-.917zm16 .917v-.917h-1v.917zM0 5.708v.917h1v-.917zm16 .917v-.917h-1v.917zM0 7.542v.916h1v-.916zm15 .916h1v-.916h-1zM0 9.375v.917h1v-.917zm16 .917v-.917h-1v.917zm-16 .916v.917h1v-.917zm16 .917v-.917h-1v.917zm-16 .917v.458q0 .25.048.487l.98-.194A1.5 1.5 0 0 1 1 13.5v-.458zm16 .458v-.458h-1v.458q0 .151-.029.293l.981.194Q16 13.75 16 13.5M.421 14.89c.183.272.417.506.69.689l.556-.831a1.5 1.5 0 0 1-.415-.415zm14.469.689c.272-.183.506-.417.689-.69l-.831-.556c-.11.164-.251.305-.415.415l.556.83zm-12.877.373Q2.25 16 2.5 16h.458v-1H2.5q-.151 0-.293-.029zM13.5 16q.25 0 .487-.048l-.194-.98A1.5 1.5 0 0 1 13.5 15h-.458v1zm-9.625 0h.917v-1h-.917zm1.833 0h.917v-1h-.917zm1.834-1v1h.916v-1zm1.833 1h.917v-1h-.917zm1.833 0h.917v-1h-.917zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z" />
         </svg>
         <svg
+          onClick={() => alert("coming soon.")}
           xmlns="http://www.w3.org/2000/svg"
           width="21"
           height="21"
@@ -278,7 +281,7 @@ export default function Mydiary() {
       <div
         className={
           popupFilter
-            ? " fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[25rem] h-full "
+            ? " fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[25rem]"
             : "hidden"
         }
       >

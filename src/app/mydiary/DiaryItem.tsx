@@ -1,7 +1,5 @@
 "use client";
 import React, { Suspense, useEffect, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { deleteDocumentBy_id } from "./actions";
 import {
   MoodAngry,
@@ -19,7 +17,7 @@ export const DiaryItem = ({ diaryDocument, setDelete_id }: any) => {
     <MoodNormal mood={mood} />
   );
   const deleteData = async () => {
-    if (confirm("Are you sure?")) {
+    if (confirm("Are you sure?  This action cannot be undone.")) {
       await deleteDocumentBy_id(_id);
       setDelete_id(_id);
     }

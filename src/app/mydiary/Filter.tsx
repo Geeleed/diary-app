@@ -8,7 +8,7 @@ function Filter({ setSelfState, diaries, setDiaries }: any) {
   const [dateFrom, setDateFrom] = useState<number>();
   const [dateTo, setDateTo] = useState<number>();
   const [mood, setMood] = useState();
-  const [isSort, setIsSort] = useState(true);
+  const [isSort, setIsSort] = useState(false);
 
   // Filter in server
   //   const handleSubmit = async () => {
@@ -45,8 +45,8 @@ function Filter({ setSelfState, diaries, setDiaries }: any) {
     );
   return (
     <>
-      <div className=" bg-weight4 bg-opacity-50 p-10 backdrop-blur-md flex flex-col gap-3 h-full">
-        <h2>Filter</h2>
+      <div className=" bg-weight4 bg-opacity-50 p-10 backdrop-blur-md flex flex-col gap-3 h-full rounded-t-3xl">
+        <h2 className=" text-[2rem] text-center font-bold">Filter</h2>
         <div className="flex gap-2 justify-between">
           <div className="flex flex-col w-full">
             Date From:
@@ -95,7 +95,7 @@ function Filter({ setSelfState, diaries, setDiaries }: any) {
             handleSubmit();
             setSelfState(null);
           }}
-          className=" bg-weight5 p-2 rounded-lg cursor-pointer"
+          className=" bg-weight5 p-3 rounded-lg cursor-pointer text-[1.3rem]"
         >
           Submit
         </button>
