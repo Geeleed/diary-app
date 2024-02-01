@@ -25,3 +25,7 @@
     scrollbar-width: none; /* Firefox */
   }
 }
+::selection {
+  background: #bfac97;
+  color: white;
+}
