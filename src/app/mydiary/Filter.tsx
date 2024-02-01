@@ -2,18 +2,11 @@
 import React, { useState } from "react";
 import MoodTab from "./MoodTab";
 
-// import { filter } from "./actions";
-
 function Filter({ setSelfState, diaries, setDiaries }: any) {
   const [dateFrom, setDateFrom] = useState<number>();
   const [dateTo, setDateTo] = useState<number>();
   const [mood, setMood] = useState();
   const [isSort, setIsSort] = useState(false);
-
-  // Filter in server
-  //   const handleSubmit = async () => {
-  //     setDiaries(JSON.parse(await filter({ dateFrom, dateTo, mood })));
-  //   };
 
   // Filter in client
   const filter = (param: any) => {
@@ -25,24 +18,24 @@ function Filter({ setSelfState, diaries, setDiaries }: any) {
     if (mood)
       result = diaries
         .filter((i: any) => i.mood === mood)
-        .filter((i: any) => dateFrom <= i.clientTimestamp <= dateTo);
-    else
-      result = diaries.filter(
-        (i: any) => dateFrom <= i.clientTimestamp <= dateTo
-      );
+        .filter((i: any) => dateFrom <= i.editAt <= dateTo);
+    else result = diaries.filter((i: any) => dateFrom <= i.editAt <= dateTo);
     return result;
   };
 
-  const handleSubmit = () =>
-    setDiaries(
-      isSort
-        ? filter({ dateFrom, dateTo, mood }).sort(
-            (a: any, b: any) => a.clientTimestamp - b.clientTimestamp
-          )
-        : filter({ dateFrom, dateTo, mood }).sort(
-            (a: any, b: any) => b.clientTimestamp - a.clientTimestamp
-          )
-    );
+  const handleSubmit = () => {
+    const data = filter({ dateFrom, dateTo, mood });
+    if (data.length !== 0) {
+      setDiaries(
+        isSort
+          ? data.sort((a: any, b: any) => a.editAt - b.editAt)
+          : data.sort((a: any, b: any) => b.editAt - a.editAt)
+      );
+    } else {
+      alert("Data not found!");
+    }
+  };
+
   return (
     <>
       <div className=" bg-weight4 bg-opacity-50 p-10 backdrop-blur-md flex flex-col gap-3 h-full rounded-t-3xl">
@@ -100,7 +93,7 @@ function Filter({ setSelfState, diaries, setDiaries }: any) {
           Submit
         </button>
         <button
-          className=" mt-5 cursor-pointer"
+          className=" cursor-pointer border-2 border-dotted rounded-lg p-3"
           onClick={() => setSelfState(null)}
         >
           Close

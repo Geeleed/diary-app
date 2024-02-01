@@ -14,12 +14,11 @@ function Home() {
     <div className=" flex flex-col justify-center items-center gap-3 rounded-lg p-3 w-full">
       {frontPage}
       <div className=" border border-weight2 w-3/4 rounded-lg relative my-2">
-        <h1 className=" absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-weight1 flex justify-center items-center text-weight5 ">
+        <h1 className=" absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-7 w-7 rounded-full bg-weight1 flex justify-center items-center  ">
           OR
         </h1>
       </div>
       <button
-        className=" text-weight5 "
         onClick={() => {
           if (btnSw === "Register") {
             setFrontPage(<Register />);

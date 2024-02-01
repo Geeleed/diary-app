@@ -1,41 +1,62 @@
 "use client";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { deleteDocumentBy_id } from "./actions";
 import {
   MoodAngry,
   MoodBroke,
   MoodHappy,
   MoodNormal,
+  MoodUndefined,
   MoodUpset,
 } from "./MoodTab";
 import DiaryContent from "./DiaryContent";
+import EditingFrom from "./EditingForm";
 
-export const DiaryItem = ({ diaryDocument, setDelete_id }: any) => {
-  const { dayName, day, month, year, content, image, hh, mm, _id, mood, link } =
-    diaryDocument;
+export const DiaryItem = ({
+  diaryDocument,
+  setDelete_id,
+  setPopupEditingForm,
+  storage,
+  setStorage,
+}: any) => {
+  // const { editAt, content, image, _id, mood, link } =
+  //   diaryDocument;
   const [moodIcon, setMoodIcon] = useState<React.JSX.Element>(
-    <MoodNormal mood={mood} />
+    <MoodNormal mood={diaryDocument.mood} />
   );
   const deleteData = async () => {
     if (confirm("Are you sure?  This action cannot be undone.")) {
-      await deleteDocumentBy_id(_id);
-      setDelete_id(_id);
+      await deleteDocumentBy_id(diaryDocument._id);
+      setDelete_id(diaryDocument._id);
     }
+  };
+  const editData = (_id: any) => {
+    setPopupEditingForm(
+      <EditingFrom
+        setSelfState={setPopupEditingForm}
+        edit_id={diaryDocument._id}
+        storage={storage}
+        setStorage={setStorage}
+      />
+    );
   };
 
   useEffect(() => {
-    if (mood === "happy") {
-      setMoodIcon(<MoodHappy mood={mood} />);
-    } else if (mood === "normal") {
-      setMoodIcon(<MoodNormal mood={mood} />);
-    } else if (mood === "upset") {
-      setMoodIcon(<MoodUpset mood={mood} />);
-    } else if (mood === "angry") {
-      setMoodIcon(<MoodAngry mood={mood} />);
-    } else if (mood === "broke") {
-      setMoodIcon(<MoodBroke mood={mood} />);
+    if (diaryDocument.mood === "happy") {
+      setMoodIcon(<MoodHappy mood={diaryDocument.mood} />);
+    } else if (diaryDocument.mood === "normal") {
+      setMoodIcon(<MoodNormal mood={diaryDocument.mood} />);
+    } else if (diaryDocument.mood === "") {
+      setMoodIcon(<MoodUndefined mood={diaryDocument.mood} />);
+    } else if (diaryDocument.mood === "upset") {
+      setMoodIcon(<MoodUpset mood={diaryDocument.mood} />);
+    } else if (diaryDocument.mood === "angry") {
+      setMoodIcon(<MoodAngry mood={diaryDocument.mood} />);
+    } else if (diaryDocument.mood === "broke") {
+      setMoodIcon(<MoodBroke mood={diaryDocument.mood} />);
     }
   }, []);
+  const dt = new Date(diaryDocument.editAt);
   return (
     <section
       className={`border-b-2 border-weight4 border-dotted rounded-xl w-full p-3 bg-white`}
@@ -43,10 +64,13 @@ export const DiaryItem = ({ diaryDocument, setDelete_id }: any) => {
       <h3 className="  mb-1 flex justify-between">
         {moodIcon}
         <p>
-          {dayName} {day} {month} {year} --- {hh}:{mm}
+          {dayName(dt.getUTCDay())} {dt.getUTCDate()}{" "}
+          {monthName(dt.getUTCMonth())} {dt.getUTCFullYear()} ---{" "}
+          {dt.getUTCHours()}:{dt.getUTCMinutes()}
         </p>
         <div className=" flex gap-1">
           <svg
+            onClick={() => editData(diaryDocument._id)}
             xmlns="http://www.w3.org/2000/svg"
             width="20"
             height="20"
@@ -70,13 +94,60 @@ export const DiaryItem = ({ diaryDocument, setDelete_id }: any) => {
           </svg>
         </div>
       </h3>
-      {/* <Suspense fallback={<>Loading...</>}> */}
       <DiaryContent
-        image={image as string}
-        content={content as string}
-        link={link as string}
+        image={diaryDocument.image as string}
+        content={diaryDocument.content as string}
+        link={diaryDocument.link as string}
       />
-      {/* </Suspense> */}
     </section>
   );
 };
+
+const dayName = (getDay: number) =>
+  ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][getDay];
+const monthName = (getMonth: number) =>
+  [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ][getMonth];
+
+// const getDateAndTime = () => {
+//   const currentDate = new Date();
+//   const year = currentDate.getFullYear();
+//   const month = currentDate.getMonth();
+//   const day = currentDate.getDate();
+//   const hours = currentDate.getHours();
+//   const minutes = currentDate.getMinutes();
+//   const seconds = currentDate.getSeconds();
+//   const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][
+//     currentDate.getDay()
+//   ];
+//   const monthName = [
+//     "Jan",
+//     "Feb",
+//     "Mar",
+//     "Apr",
+//     "May",
+//     "Jun",
+//     "Jul",
+//     "Aug",
+//     "Sep",
+//     "Oct",
+//     "Nov",
+//     "Dec",
+//   ][month];
+//   return {
+//     date: `${dayName} ${day} ${monthName} ${year}`,
+//     time: `${hours}:${minutes}:${seconds}`,
+//   };
+// };

@@ -7,8 +7,9 @@ import {
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { contentAddress } from "../utils/dataAddress";
-import { decryptToken, verifyToken } from "../utils/utils";
+import { decryptToken } from "../utils/utils";
 import { ObjectId } from "mongodb";
+import { hash256 } from "../utils/hash256";
 
 export async function logout() {
   cookies().delete("token");
@@ -28,7 +29,12 @@ export const getDiary = async () => {
   ]).then((res) => res);
   return JSON.stringify(content);
 };
-
+export const getDiaryByPreId = async (preId: string) => {
+  const res = await mongodbConnectThenAggregate(contentAddress, [
+    { $match: { preId: preId } },
+  ]).then((res) => res);
+  return JSON.stringify(res);
+};
 export const getLatestDiary = async () => {
   const payload = await decryptToken();
   const { username }: any = payload;
@@ -43,7 +49,7 @@ export const getLatestDiary = async () => {
 
 export const addThenGetLatestDiary = async (content: any) => {
   await addDiary(content);
-  return await getLatestDiary();
+  return await getDiaryByPreId(content.preId).then((res) => res);
 };
 
 export const deleteDocumentBy_id = async (_id: any) => {
@@ -55,6 +61,36 @@ export const deleteDocumentBy_id = async (_id: any) => {
   await connection.close();
 };
 
+export const editDiaryBy_id = async (objectData: any) => {
+  const connection = await mongodbConnect(contentAddress.connectionString);
+  await connection
+    .db(contentAddress.databaseName)
+    .collection(contentAddress.collectionName)
+    .updateOne({ _id: new ObjectId(objectData.edit_id) }, { $set: objectData });
+  await connection.close();
+};
+export const updateThenGetDiary = async (objectData: any) => {
+  // const {
+  //   edit_id,
+  //   content,
+  //   image,
+  //   link,
+  //   mood,
+  //   hh,
+  //   mm,
+  //   ss,
+  //   day,
+  //   dayName,
+  //   month,
+  //   year,
+  //   clientTimestamp,
+  // } = objectData;
+  await editDiaryBy_id(objectData);
+  const updated = await mongodbConnectThenAggregate(contentAddress, [
+    { $match: { _id: new ObjectId(objectData.edit_id) } },
+  ]);
+  return JSON.stringify(updated);
+};
 export const getUsernameFromToken = async () => {
   try {
     const { username }: any = await decryptToken();

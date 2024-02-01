@@ -1,78 +1,22 @@
 "use client";
-import React, { useEffect, useRef, useState, ChangeEvent } from "react";
-import {
-  addThenGetLatestDiary,
-  getDiary,
-  getUsernameFromToken,
-  logout,
-} from "./actions";
+import React, { useEffect, useRef, useState } from "react";
+import { getDiary, getUsernameFromToken, logout } from "./actions";
 import Link from "next/link";
-import Image from "next/image";
-import MoodTab from "./MoodTab";
 import { DiaryItem } from "./DiaryItem";
 import Filter from "./Filter";
+import WritingFrom from "./WritingFrom";
+import { hash256 } from "../utils/hash256";
+import { md5 } from "../utils/md5";
 
 export default function Mydiary() {
-  const contentRef = useRef<any>(null);
   const linkRef = useRef<any>(null);
-  const inputImageRef = useRef<any>(null);
   const [delete_id, setDelete_id] = useState(null);
   const [username, setUsername] = useState("");
-  const [diaries, setDiaries] = useState<any>([]);
-  const [storage, setStorage] = useState<any>([]);
-  const [hiddenPopup, setHiddenPopup] = useState(true);
-  const [base64, setBase64] = useState<string>();
-  const [mood, setMood] = useState<string>();
-  const [link, setLink] = useState<string>();
+  const [diaries, setDiaries] = useState<any>();
+  const [storage, setStorage] = useState<any>();
+  const [popupWritingForm, setPopupWritingForm] = useState<any>(null);
+  const [popupEditingForm, setPopupEditingForm] = useState<any>(null);
   const [popupFilter, setPopupFilter] = useState<any>();
-  const clear = () => {
-    setBase64("");
-    inputImageRef.current.value = "";
-    contentRef.current.value = "";
-    setMood(undefined);
-    setLink(undefined);
-  };
-  const makeObjectData = async () => {
-    const content = contentRef.current?.value;
-    const now = new Date();
-    const objectData = {
-      hidden: false,
-      username: username,
-      content: content,
-      image: base64,
-      mood: mood,
-      link: link,
-      hh: now.getHours(),
-      mm: now.getMinutes(),
-      ss: now.getMilliseconds(),
-      day: now.getDate(),
-      dayName: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][now.getDay()],
-      month: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ][now.getMonth()],
-      year: now.getFullYear(),
-      clientTimestamp: now.getTime(),
-    };
-    clear();
-    return objectData;
-  };
-  const sendData = async () => {
-    if (contentRef.current?.value || base64) {
-      const latestDoc = await addThenGetLatestDiary(await makeObjectData());
-      setStorage((prev: any) => [JSON.parse(latestDoc)[0], ...prev]);
-    } else alert("write something...");
-  };
   useEffect(() => {
     (async () =>
       await getUsernameFromToken().then((res) => setUsername(res)))();
@@ -84,7 +28,8 @@ export default function Mydiary() {
       }))();
   }, []);
   useEffect(() => {
-    setStorage(storage.filter((item: any) => item._id !== delete_id));
+    storage &&
+      setStorage(storage.filter((item: any) => item._id !== delete_id));
   }, [delete_id]);
   useEffect(() => {
     setDiaries(storage);
@@ -122,102 +67,31 @@ export default function Mydiary() {
           />
         </svg>
       </nav>
-      <section>
-        <div className={` ${hiddenPopup && "hidden"}`}>
-          <div className=" bg-weight3 my-2 flex flex-col justify-center items-center rounded-lg gap-2 p-3">
-            {base64 && (
-              <Image
-                className=" rounded-md"
-                src={base64}
-                height={100}
-                width={600}
-                alt=""
-              />
-            )}
-            <textarea
-              className=" bg-white rounded-lg rounded-b-none w-full p-3 focus:outline-dotted focus:outline-2 outline-weight4 text-[1.2rem] "
-              ref={contentRef}
-              rows={8}
-              placeholder="writing..."
-            ></textarea>
-            {link && (
-              <Link
-                className=" bg-white rounded-md w-full p-1 text-center"
-                href={link}
-              >
-                Link: {link}
-              </Link>
-            )}
-            <div className=" grid grid-cols-8 gap-1">
-              <svg
-                onClick={() => inputImageRef.current.click()}
-                xmlns="http://www.w3.org/2000/svg"
-                width="40"
-                height="40"
-                fill="#a39789"
-                className="bi bi-camera cursor-pointer hover:opacity-80 transition-all"
-                viewBox="0 0 16 16"
-              >
-                <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z" />
-                <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0" />
-              </svg>
-              <input
-                ref={inputImageRef}
-                className=" hidden"
-                onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                  const reader = new FileReader();
-                  const file = e.target.files![0];
-                  reader.readAsDataURL(file);
-                  reader.onloadend = () => {
-                    setBase64(reader.result as string);
-                  };
-                }}
-                type="file"
-              />
-              <svg
-                onClick={() => setLink(prompt("Insert your link...")!)}
-                xmlns="http://www.w3.org/2000/svg"
-                width="40"
-                height="40"
-                fill="#a39789"
-                className="bi bi-link-45deg cursor-pointer hover:opacity-80 transition-all"
-                viewBox="0 0 16 16"
-              >
-                <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z" />
-                <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z" />
-              </svg>
-              <MoodTab mood={mood} setMood={setMood} />
-              <svg
-                onClick={clear}
-                xmlns="http://www.w3.org/2000/svg"
-                width="40"
-                height="40"
-                fill="#a39789"
-                className="bi bi-x-circle-fill cursor-pointer hover:opacity-80 transition-all"
-                viewBox="0 0 16 16"
-              >
-                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
-              </svg>
-            </div>
+      <div
+        className={
+          popupWritingForm || popupEditingForm
+            ? " fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[25rem] h-full bg-weight3 overflow-scroll z-10  overscroll-contain"
+            : "hidden"
+        }
+      >
+        {popupWritingForm}
+        {popupEditingForm}
+      </div>
 
-            <button
-              className=" bg-weight4 w-full p-2 rounded-lg rounded-t-none cursor-pointer hover:opacity-80 transition-all"
-              onClick={async () => await sendData()}
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </section>
       <article className=" flex flex-col gap-2 mb-12">
-        {diaries.map((item: any) => (
-          <DiaryItem
-            key={item._id}
-            diaryDocument={item}
-            setDelete_id={setDelete_id}
-          />
-        ))}
+        {diaries &&
+          diaries.map((item: any) => (
+            <DiaryItem
+              key={item.preId}
+              diaryDocument={item}
+              setDelete_id={setDelete_id}
+              setPopupEditingForm={setPopupEditingForm}
+              storage={storage}
+              setStorage={setStorage}
+            />
+          ))}
       </article>
+
       <nav className=" fixed bottom-0 flex left-1/2 -translate-x-1/2 w-full max-w-[25rem] h-14 justify-around items-center bg-[#bfac97ee] backdrop-blur-md">
         <svg
           onClick={() => linkRef.current.click()}
@@ -230,11 +104,17 @@ export default function Mydiary() {
         >
           <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5z" />
         </svg>
-        <Link className=" hidden" href="#" ref={linkRef}></Link>
         <svg
           onClick={() => {
-            setHiddenPopup((prev) => !prev);
-            linkRef.current.click();
+            !popupWritingForm
+              ? setPopupWritingForm(
+                  <WritingFrom
+                    setSelfState={setPopupWritingForm}
+                    username={username}
+                    setStorage={setStorage}
+                  />
+                )
+              : setPopupWritingForm(null);
           }}
           xmlns="http://www.w3.org/2000/svg"
           width="21"
