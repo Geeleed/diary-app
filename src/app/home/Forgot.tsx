@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef } from "react";
-import { checkPattern, registerProcess, resetProcess } from "./actions";
+import { checkPattern, resetProcess } from "./actions";
 import { hash256 } from "../utils/hash256";
 import { useRouter } from "next/navigation";
 

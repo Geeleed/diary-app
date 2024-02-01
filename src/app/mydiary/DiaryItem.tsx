@@ -19,8 +19,6 @@ export const DiaryItem = ({
   storage,
   setStorage,
 }: any) => {
-  // const { editAt, content, image, _id, mood, link } =
-  //   diaryDocument;
   const [moodIcon, setMoodIcon] = useState<React.JSX.Element>(
     <MoodNormal mood={diaryDocument.mood} />
   );
@@ -120,34 +118,3 @@ const monthName = (getMonth: number) =>
     "Nov",
     "Dec",
   ][getMonth];
-
-// const getDateAndTime = () => {
-//   const currentDate = new Date();
-//   const year = currentDate.getFullYear();
-//   const month = currentDate.getMonth();
-//   const day = currentDate.getDate();
-//   const hours = currentDate.getHours();
-//   const minutes = currentDate.getMinutes();
-//   const seconds = currentDate.getSeconds();
-//   const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][
-//     currentDate.getDay()
-//   ];
-//   const monthName = [
-//     "Jan",
-//     "Feb",
-//     "Mar",
-//     "Apr",
-//     "May",
-//     "Jun",
-//     "Jul",
-//     "Aug",
-//     "Sep",
-//     "Oct",
-//     "Nov",
-//     "Dec",
-//   ][month];
-//   return {
-//     date: `${dayName} ${day} ${monthName} ${year}`,
-//     time: `${hours}:${minutes}:${seconds}`,
-//   };
-// };

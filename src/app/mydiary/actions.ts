@@ -9,7 +9,6 @@ import { redirect } from "next/navigation";
 import { contentAddress } from "../utils/dataAddress";
 import { decryptToken } from "../utils/utils";
 import { ObjectId } from "mongodb";
-import { hash256 } from "../utils/hash256";
 
 export async function logout() {
   cookies().delete("token");
@@ -70,21 +69,6 @@ export const editDiaryBy_id = async (objectData: any) => {
   await connection.close();
 };
 export const updateThenGetDiary = async (objectData: any) => {
-  // const {
-  //   edit_id,
-  //   content,
-  //   image,
-  //   link,
-  //   mood,
-  //   hh,
-  //   mm,
-  //   ss,
-  //   day,
-  //   dayName,
-  //   month,
-  //   year,
-  //   clientTimestamp,
-  // } = objectData;
   await editDiaryBy_id(objectData);
   const updated = await mongodbConnectThenAggregate(contentAddress, [
     { $match: { _id: new ObjectId(objectData.edit_id) } },

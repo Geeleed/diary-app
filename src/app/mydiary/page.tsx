@@ -5,8 +5,6 @@ import Link from "next/link";
 import { DiaryItem } from "./DiaryItem";
 import Filter from "./Filter";
 import WritingFrom from "./WritingFrom";
-import { hash256 } from "../utils/hash256";
-import { md5 } from "../utils/md5";
 
 export default function Mydiary() {
   const linkRef = useRef<any>(null);

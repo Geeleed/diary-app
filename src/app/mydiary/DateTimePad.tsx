@@ -5,9 +5,6 @@ function DateTimePad({ datetime, setDatetime }: any) {
   const [inputState, setInputState] = useState(false);
   const [btnState, setBtnState] = useState(false);
   const [save, setSave] = useState<number>(datetime);
-  //   useEffect(() => {
-  //     setDatetime((prev: number) => setSave(prev));
-  //   }, []);
   useEffect(() => {
     if (btnState) {
       setDatetime(

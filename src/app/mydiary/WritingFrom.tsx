@@ -21,7 +21,6 @@ function WritingFrom({ setSelfState, username, setStorage }: Props) {
   const [datetime, setDatetime] = useState<number>(
     new Date().getTime() - new Date().getTimezoneOffset() * 60000
   );
-  // const [selectDatetime, setSelectDatetime] = useState(false);
   const clear = () => {
     setBase64("");
     inputImageRef.current.value = "";
@@ -121,31 +120,7 @@ function WritingFrom({ setSelfState, username, setStorage }: Props) {
           <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
         </svg>
       </div>
-      {/* <div className=" flex justify-between w-full">
-        <input
-          onChange={(e) => {
-            setDatetime(e.target.valueAsNumber);
-            setSelectDatetime(true);
-          }}
-          type="datetime-local"
-        />
-        or
-        <button
-          className={selectDatetime ? " bg-weight2" : " bg-weight4"}
-          onClick={() => {
-            setDatetime(new Date().getTime());
-            setSelectDatetime(false);
-          }}
-        >
-          Now
-        </button>
-      </div> */}
-      <DateTimePad
-        datetime={datetime}
-        setDatetime={setDatetime}
-        // selectDatetime={selectDatetime}
-        // setSelectDatetime={setSelectDatetime}
-      />
+      <DateTimePad datetime={datetime} setDatetime={setDatetime} />
 
       <button
         className=" bg-weight4 w-full p-2 text-[1.5rem] rounded-lg rounded-t-none cursor-pointer hover:opacity-80 transition-all"

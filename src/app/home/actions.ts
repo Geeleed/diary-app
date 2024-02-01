@@ -2,7 +2,6 @@
 
 import {
   mongodbConnect,
-  mongodbConnectThenAggregate,
   mongodbConnectThenInsert,
 } from "@geeleed/short-mongodb";
 import { hadUser, hadUserBirth, isMember, setToken } from "../utils/utils";
