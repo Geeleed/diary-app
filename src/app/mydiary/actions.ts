@@ -68,6 +68,23 @@ export const editDiaryBy_id = async (objectData: any) => {
     .updateOne({ _id: new ObjectId(objectData.edit_id) }, { $set: objectData });
   await connection.close();
 };
+
+export const updateContentAIBy_id = async (objectData: any, _id: any) => {
+  try {
+    const connection = await mongodbConnect(contentAddress.connectionString);
+    await connection
+      .db(contentAddress.databaseName)
+      .collection(contentAddress.collectionName)
+      .updateOne(
+        { _id: new ObjectId(_id) },
+        { $set: { contentAI: objectData.contentAI, preId: objectData.preId } }
+      );
+    await connection.close();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const updateThenGetDiary = async (objectData: any) => {
   await editDiaryBy_id(objectData);
   const updated = await mongodbConnectThenAggregate(contentAddress, [

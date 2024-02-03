@@ -1,6 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { deleteDocumentBy_id } from "./actions";
+import {
+  deleteDocumentBy_id,
+  editDiaryBy_id,
+  updateContentAIBy_id,
+  updateThenGetDiary,
+} from "./actions";
 import {
   MoodAngry,
   MoodBroke,
@@ -11,6 +16,8 @@ import {
 } from "./MoodTab";
 import DiaryContent from "./DiaryContent";
 import EditingFrom from "./EditingForm";
+import { runGemini } from "../utils/useGeminiPro";
+import { md5 } from "../utils/md5";
 
 export const DiaryItem = ({
   diaryDocument,
@@ -22,8 +29,10 @@ export const DiaryItem = ({
   const [moodIcon, setMoodIcon] = useState<React.JSX.Element>(
     <MoodNormal mood={diaryDocument.mood} />
   );
+  const [contentAI, setContentAI] = useState<string>(diaryDocument.contentAI);
+  const [contentAILoading, setContentAILoading] = useState(false);
   const deleteData = async () => {
-    if (confirm("Are you sure?  This action cannot be undone.")) {
+    if (confirm("Are you sure to delete this diary?")) {
       await deleteDocumentBy_id(diaryDocument._id);
       setDelete_id(diaryDocument._id);
     }
@@ -38,7 +47,13 @@ export const DiaryItem = ({
       />
     );
   };
-
+  const callAI = async (_id: any) => {
+    const doc = storage.filter((doc: any) => doc._id === diaryDocument._id);
+    const result = await runGemini(
+      `สรุปเหตุการณ์สำคัญ โดยใช้ภาษาของบุคคลที่หนึ่งของเรื่องต่อไปนี้หน่อย ถ้าเรื่องราวของฉันกำลังแย่ก็ช่วยให้กำลังใจฉันด้วย \n\n ${doc[0].content}`
+    ).then((res) => res);
+    return result;
+  };
   useEffect(() => {
     if (diaryDocument.mood === "happy") {
       setMoodIcon(<MoodHappy mood={diaryDocument.mood} />);
@@ -67,28 +82,47 @@ export const DiaryItem = ({
           {dt.getUTCHours()}:{dt.getUTCMinutes()}
         </p>
         <div className=" flex gap-1">
-          <svg
-            onClick={() => alert("coming soon.")}
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="#a39789"
-            className="bi bi-stars cursor-pointer"
-            viewBox="0 0 16 16"
-          >
-            <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z" />
-          </svg>
-          <svg
-            onClick={() => editData(diaryDocument._id)}
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="#a39789"
-            className="bi bi-pen cursor-pointer"
-            viewBox="0 0 16 16"
-          >
-            <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001m-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708z" />
-          </svg>
+          {!contentAI && (
+            <svg
+              onClick={async () => {
+                setContentAILoading(true);
+                const contentAI = await callAI(diaryDocument._id).then(
+                  (res) => {
+                    setContentAI(res);
+                    return res;
+                  }
+                );
+                setContentAILoading(false);
+                diaryDocument["edit_id"] = diaryDocument._id;
+                diaryDocument["contentAI"] = contentAI;
+                diaryDocument.preId = md5(JSON.stringify(diaryDocument));
+                await updateContentAIBy_id(diaryDocument, diaryDocument._id);
+              }}
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="#a39789"
+              className="bi bi-stars cursor-pointer"
+              viewBox="0 0 16 16"
+            >
+              <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z" />
+            </svg>
+          )}
+
+          {!contentAI && (
+            <svg
+              onClick={() => editData(diaryDocument._id)}
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="#a39789"
+              className="bi bi-pen cursor-pointer"
+              viewBox="0 0 16 16"
+            >
+              <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001m-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708z" />
+            </svg>
+          )}
+
           <svg
             onClick={async () => await deleteData()}
             xmlns="http://www.w3.org/2000/svg"
@@ -103,6 +137,17 @@ export const DiaryItem = ({
           </svg>
         </div>
       </h3>
+      {/* {contentAILoading && <div className=" flex w-full">Thinking...</div>} */}
+      {contentAILoading && (
+        <div className=" flex w-full justify-center text-[2rem] animate-ping">
+          Thinking...
+        </div>
+      )}
+      {contentAI && (
+        <p className=" bg-black bg-opacity-70 text-white p-2 rounded-lg text-[1.2rem] my-3">
+          {contentAI}
+        </p>
+      )}
       <DiaryContent
         image={diaryDocument.image as string}
         content={diaryDocument.content as string}

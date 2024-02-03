@@ -5,6 +5,7 @@ import Link from "next/link";
 import { DiaryItem } from "./DiaryItem";
 import Filter from "./Filter";
 import WritingFrom from "./WritingFrom";
+// import { addThenGetWeekly } from "../utils/firstEffectAI";
 
 export default function Mydiary() {
   const linkRef = useRef<any>(null);
@@ -19,10 +20,15 @@ export default function Mydiary() {
     (async () =>
       await getUsernameFromToken().then((res) => setUsername(res)))();
     (async () =>
-      await getDiary().then((res) => {
+      await getDiary().then(async (res) => {
         const data = JSON.parse(res).reverse();
-        setStorage(data);
-        setDiaries(data);
+        // let contentWeeklyByAI = await addThenGetWeekly({ data, username }).then(
+        //   (content) => content
+        // );
+        // contentWeeklyByAI = JSON.parse(contentWeeklyByAI)[0];
+        const contentWeeklyByAI: [] = [];
+        setStorage([contentWeeklyByAI, ...data]);
+        setDiaries([contentWeeklyByAI, ...data]);
       }))();
   }, []);
   useEffect(() => {
@@ -35,7 +41,8 @@ export default function Mydiary() {
 
   return (
     <div className=" flex flex-col px-1 mb-5 w-[25rem]">
-      <nav className=" w-full flex justify-between gap-2 p-3 sticky top-0 bg-[#edededaa] backdrop-blur-xl">
+      <Link className=" hidden" ref={linkRef} href={"#"}></Link>
+      <nav className=" w-full flex justify-between gap-2 p-3 sticky top-0 bg-[#edededaa] backdrop-blur-xl z-10">
         <div className=" flex flex-col gap-2">
           <Link href={"#"} className=" font-bold text-[2rem] leading-none">
             {username}
@@ -123,7 +130,7 @@ export default function Mydiary() {
         >
           <path d="M2.5 0q-.25 0-.487.048l.194.98A1.5 1.5 0 0 1 2.5 1h.458V0zm2.292 0h-.917v1h.917zm1.833 0h-.917v1h.917zm1.833 0h-.916v1h.916zm1.834 0h-.917v1h.917zm1.833 0h-.917v1h.917zM13.5 0h-.458v1h.458q.151 0 .293.029l.194-.981A2.5 2.5 0 0 0 13.5 0m2.079 1.11a2.5 2.5 0 0 0-.69-.689l-.556.831q.248.167.415.415l.83-.556zM1.11.421a2.5 2.5 0 0 0-.689.69l.831.556c.11-.164.251-.305.415-.415zM16 2.5q0-.25-.048-.487l-.98.194q.027.141.028.293v.458h1zM.048 2.013A2.5 2.5 0 0 0 0 2.5v.458h1V2.5q0-.151.029-.293zM0 3.875v.917h1v-.917zm16 .917v-.917h-1v.917zM0 5.708v.917h1v-.917zm16 .917v-.917h-1v.917zM0 7.542v.916h1v-.916zm15 .916h1v-.916h-1zM0 9.375v.917h1v-.917zm16 .917v-.917h-1v.917zm-16 .916v.917h1v-.917zm16 .917v-.917h-1v.917zm-16 .917v.458q0 .25.048.487l.98-.194A1.5 1.5 0 0 1 1 13.5v-.458zm16 .458v-.458h-1v.458q0 .151-.029.293l.981.194Q16 13.75 16 13.5M.421 14.89c.183.272.417.506.69.689l.556-.831a1.5 1.5 0 0 1-.415-.415zm14.469.689c.272-.183.506-.417.689-.69l-.831-.556c-.11.164-.251.305-.415.415l.556.83zm-12.877.373Q2.25 16 2.5 16h.458v-1H2.5q-.151 0-.293-.029zM13.5 16q.25 0 .487-.048l-.194-.98A1.5 1.5 0 0 1 13.5 15h-.458v1zm-9.625 0h.917v-1h-.917zm1.833 0h.917v-1h-.917zm1.834-1v1h.916v-1zm1.833 1h.917v-1h-.917zm1.833 0h.917v-1h-.917zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z" />
         </svg>
-        <svg
+        {/* <svg
           onClick={() => alert("coming soon.")}
           xmlns="http://www.w3.org/2000/svg"
           width="21"
@@ -133,7 +140,7 @@ export default function Mydiary() {
           viewBox="0 0 16 16"
         >
           <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828zM3.794 1.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387A1.73 1.73 0 0 0 4.593 5.69l-.387 1.162a.217.217 0 0 1-.412 0L3.407 5.69A1.73 1.73 0 0 0 2.31 4.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387A1.73 1.73 0 0 0 3.407 2.31zM10.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732L9.1 2.137a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z" />
-        </svg>
+        </svg> */}
         <svg
           onClick={() => {
             !popupFilter
@@ -155,7 +162,7 @@ export default function Mydiary() {
         >
           <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5" />
         </svg>
-        <svg
+        {/* <svg
           onClick={() => alert("coming soon.")}
           xmlns="http://www.w3.org/2000/svg"
           width="21"
@@ -165,7 +172,7 @@ export default function Mydiary() {
           viewBox="0 0 16 16"
         >
           <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
-        </svg>
+        </svg> */}
       </nav>
       <div
         className={
