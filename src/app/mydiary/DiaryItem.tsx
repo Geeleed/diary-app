@@ -80,21 +80,23 @@ export const DiaryItem = ({
           {!contentAI && (
             <svg
               onClick={async () => {
-                setContentAILoading(true);
-                const contentAI = await callAI(diaryDocument._id).then(
-                  (res) => {
-                    setContentAI(res);
-                    return res;
-                  }
-                );
-                setContentAILoading(false);
-                diaryDocument["edit_id"] = diaryDocument._id;
-                diaryDocument["contentAI"] = contentAI;
-                diaryDocument.preId = md5(JSON.stringify(diaryDocument));
-                await updateContentAIBy_id(
-                  diaryDocument,
-                  diaryDocument._id
-                ).then((res) => res);
+                if (confirm("Tell the story to an imaginary friend!")) {
+                  setContentAILoading(true);
+                  const contentAI = await callAI(diaryDocument._id).then(
+                    (res) => {
+                      setContentAI(res);
+                      return res;
+                    }
+                  );
+                  setContentAILoading(false);
+                  diaryDocument["edit_id"] = diaryDocument._id;
+                  diaryDocument["contentAI"] = contentAI;
+                  diaryDocument.preId = md5(JSON.stringify(diaryDocument));
+                  await updateContentAIBy_id(
+                    diaryDocument,
+                    diaryDocument._id
+                  ).then((res) => res);
+                }
               }}
               xmlns="http://www.w3.org/2000/svg"
               width="20"
