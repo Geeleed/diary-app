@@ -91,7 +91,10 @@ export const DiaryItem = ({
                 diaryDocument["edit_id"] = diaryDocument._id;
                 diaryDocument["contentAI"] = contentAI;
                 diaryDocument.preId = md5(JSON.stringify(diaryDocument));
-                await updateContentAIBy_id(diaryDocument, diaryDocument._id);
+                await updateContentAIBy_id(
+                  diaryDocument,
+                  diaryDocument._id
+                ).then((res) => res);
               }}
               xmlns="http://www.w3.org/2000/svg"
               width="20"
