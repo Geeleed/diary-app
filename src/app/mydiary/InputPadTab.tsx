@@ -28,14 +28,19 @@ function InputPadTab({
         ref={inputImageRef}
         className=" hidden"
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          const reader = new FileReader();
-          const file = e.target.files![0];
-          reader.readAsDataURL(file);
-          reader.onloadend = () => {
-            setBase64(reader.result as string);
-          };
+          if (e.target.files![0].size > 4000000) {
+            alert("file size limit 4 MB");
+          } else {
+            const reader = new FileReader();
+            const file = e.target.files![0];
+            reader.readAsDataURL(file);
+            reader.onloadend = () => {
+              setBase64(reader.result as string);
+            };
+          }
         }}
         type="file"
+        accept="image/*"
       />
       <svg
         onClick={() =>

@@ -18,6 +18,7 @@ function EditingFrom({ setSelfState, edit_id, setStorage, storage }: Props) {
   const contentRef = useRef<any>(null);
   const inputImageRef = useRef<any>(null);
   const [datetime, setDatetime] = useState<number>(docs.editAt);
+  const [loading, setLoading] = useState(false);
   let docs_image: string,
     docs_mood: string,
     docs_link: string,
@@ -62,12 +63,14 @@ function EditingFrom({ setSelfState, edit_id, setStorage, storage }: Props) {
   };
   const sendData = async () => {
     if (contentRef.current?.value || base64) {
+      setLoading(true);
       const updatedDoc = await updateThenGetDiary(await makeObjectData());
       setStorage((prev: any) => [
         JSON.parse(updatedDoc)[0],
         ...prev.filter((item: any) => item._id !== edit_id),
       ]);
       setSelfState(null);
+      setLoading(false);
     } else alert("write something...");
   };
   useEffect(() => {
@@ -135,7 +138,10 @@ function EditingFrom({ setSelfState, edit_id, setStorage, storage }: Props) {
       </div>
       <DateTimePad datetime={datetime} setDatetime={setDatetime} />
       <button
-        className=" bg-weight4 w-full p-2 text-[1.5rem] rounded-lg rounded-t-none cursor-pointer hover:opacity-80 transition-all"
+        className={
+          (loading && "animate-ping") +
+          " bg-weight4 w-full p-2 text-[1.5rem] rounded-lg rounded-t-none cursor-pointer hover:opacity-80 transition-all"
+        }
         onClick={async () => await sendData()}
       >
         Update

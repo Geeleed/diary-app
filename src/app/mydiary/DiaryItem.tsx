@@ -1,11 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  deleteDocumentBy_id,
-  editDiaryBy_id,
-  updateContentAIBy_id,
-  updateThenGetDiary,
-} from "./actions";
+import { deleteDocumentBy_id, updateContentAIBy_id } from "./actions";
 import {
   MoodAngry,
   MoodBroke,
@@ -137,7 +132,6 @@ export const DiaryItem = ({
           </svg>
         </div>
       </h3>
-      {/* {contentAILoading && <div className=" flex w-full">Thinking...</div>} */}
       {contentAILoading && (
         <div className=" flex w-full justify-center text-[2rem] animate-ping">
           Thinking...

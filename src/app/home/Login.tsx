@@ -1,5 +1,5 @@
 "use client";
-import React, { SetStateAction, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { checkPattern, loginProcess } from "./actions";
 import { hash256 } from "../utils/hash256";
 import { useRouter } from "next/navigation";
@@ -10,6 +10,7 @@ function Login(): React.JSX.Element {
   const usernameRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
   const [resetPass, setResetPass] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
 
   const getUserPass = () => {
     const username = usernameRef.current.value;
@@ -18,6 +19,7 @@ function Login(): React.JSX.Element {
   };
 
   const login = async () => {
+    setLoading(true);
     const { username } = getUserPass();
     const pattern = await checkPattern(username).then((result) => result);
     if (username && passwordRef.current.value && pattern) {
@@ -26,6 +28,7 @@ function Login(): React.JSX.Element {
         ? router.push("/mydiary")
         : alert("username or password wrong!");
     } else alert("username or password wrong!");
+    setLoading(false);
   };
 
   return (
@@ -46,7 +49,10 @@ function Login(): React.JSX.Element {
         placeholder="password"
       />
       <button
-        className=" bg-weight4 w-full p-2 rounded-lg hover:opacity-80 transition-all"
+        className={
+          (loading && " animate-ping") +
+          " bg-weight4 w-full p-2 rounded-lg hover:opacity-80 transition-all"
+        }
         onClick={login}
       >
         Log in

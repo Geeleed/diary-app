@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { checkPattern, registerProcess } from "./actions";
 import { hash256 } from "../utils/hash256";
 import { useRouter } from "next/navigation";
@@ -9,6 +9,7 @@ function Register(): React.JSX.Element {
   const usernameRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
   const dateRef = useRef<any>(null);
+  const [loading, setLoading] = useState(false);
 
   const getUserPassBirth = () => {
     const username: string = usernameRef.current.value;
@@ -18,6 +19,7 @@ function Register(): React.JSX.Element {
   };
 
   const register = async () => {
+    setLoading(true);
     const { username } = getUserPassBirth();
     if (!username || !passwordRef.current.value) {
       usernameRef.current.focus();
@@ -31,6 +33,7 @@ function Register(): React.JSX.Element {
         pattern &&
         dateRef.current.value
       ) {
+        console.log(username);
         const res = await registerProcess(getUserPassBirth());
         if (res?.canRegister) {
           alert("register success!");
@@ -38,6 +41,7 @@ function Register(): React.JSX.Element {
         } else alert("user already exists!");
       }
     }
+    setLoading(false);
   };
 
   return (
@@ -65,7 +69,12 @@ function Register(): React.JSX.Element {
           type="date"
         />
       </div>
-      <button className=" bg-weight3 w-full p-2 rounded-lg" onClick={register}>
+      <button
+        className={
+          (loading && " animate-ping") + " bg-weight3 w-full p-2 rounded-lg"
+        }
+        onClick={register}
+      >
         Register
       </button>
     </div>

@@ -39,7 +39,7 @@ export const setToken = async ({ username, password }: isMember) => {
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime(process.env.TOKEN_EXPIRE || "2h") // Token expires in ...
+    // .setExpirationTime(process.env.TOKEN_EXPIRE || "2h") // Token expires in ...
     .sign(secretKey);
 
   cookies().set("token", token);

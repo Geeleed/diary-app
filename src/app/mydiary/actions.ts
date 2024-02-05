@@ -6,9 +6,10 @@ import {
 } from "@geeleed/short-mongodb";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { contentAddress } from "../utils/dataAddress";
-import { decryptToken } from "../utils/utils";
+import { contentAddress, dataAddress } from "../utils/dataAddress";
+import { decryptToken, setToken } from "../utils/utils";
 import { ObjectId } from "mongodb";
+import { hash256 } from "../utils/hash256";
 
 export async function logout() {
   cookies().delete("token");
@@ -100,7 +101,29 @@ export const getUsernameFromToken = async () => {
     console.error(error);
   }
 };
-
+export const getPasswordFromToken = async () => {
+  try {
+    const { password }: any = await decryptToken();
+    return password;
+  } catch (error) {
+    console.error(error);
+  }
+};
+export const updatePasswordBy_username_OldPassword = async (
+  username: string,
+  oldPassword: string,
+  newPassword: string
+) => {
+  const connection = await mongodbConnect(dataAddress.connectionString);
+  await connection
+    .db(dataAddress.databaseName)
+    .collection(dataAddress.collectionName)
+    .updateOne(
+      { username: username, password: oldPassword },
+      { $set: { password: newPassword } }
+    );
+  await connection.close();
+};
 export const filter = async (param: any) => {
   const username = await getUsernameFromToken();
   let { dateFrom, dateTo, mood } = param;
@@ -128,5 +151,75 @@ export const filter = async (param: any) => {
       },
     ]).then((res) => JSON.stringify(res));
     return res;
+  }
+};
+export const setNewPassword = async (newPassword: string) => {
+  try {
+    const username = await getUsernameFromToken().then((res) => res);
+    const oldPassword = await getPasswordFromToken().then((res) => res);
+    const password = hash256(username + newPassword);
+    const connection = await mongodbConnect(dataAddress.connectionString);
+    const collection = connection
+      .db(dataAddress.databaseName)
+      .collection(dataAddress.collectionName);
+    await collection.updateOne(
+      { username: username, password: oldPassword },
+      { $set: { password } }
+    );
+    await connection.close();
+    await setToken({ username, password });
+    return "reset password success!";
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const getBirthDate = async () => {
+  try {
+    const username = await getUsernameFromToken().then((res) => res);
+    const password = await getPasswordFromToken().then((res) => res);
+    const doc = await mongodbConnectThenAggregate(dataAddress, [
+      { $match: { username, password } },
+    ]).then((res) => res);
+    const birthDate = doc[0].birthDate;
+    return birthDate;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const setNewBirthDate = async (value: string) => {
+  try {
+    const username = await getUsernameFromToken().then((res) => res);
+    const connection = await mongodbConnect(dataAddress.connectionString);
+    const collection = connection
+      .db(dataAddress.databaseName)
+      .collection(dataAddress.collectionName);
+    await collection.updateOne(
+      { username: username },
+      { $set: { birthDate: value } }
+    );
+    await connection.close();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deleteAccount = async (confirmPassword: string) => {
+  const username = await getUsernameFromToken().then((res) => res);
+  if (
+    (await getPasswordFromToken().then((res) => res)) ===
+    hash256(username + confirmPassword)
+  ) {
+    const connection = await mongodbConnect(dataAddress.connectionString);
+    await connection
+      .db(dataAddress.databaseName)
+      .collection(dataAddress.collectionName)
+      .deleteOne({ username });
+    await connection
+      .db(contentAddress.databaseName)
+      .collection(contentAddress.collectionName)
+      .deleteMany({ username });
+    await connection.close();
+    await logout();
   }
 };

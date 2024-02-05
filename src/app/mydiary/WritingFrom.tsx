@@ -15,6 +15,7 @@ interface Props {
 function WritingFrom({ setSelfState, username, setStorage }: Props) {
   const contentRef = useRef<any>(null);
   const inputImageRef = useRef<any>(null);
+  const [loading, setLoading] = useState(false);
   const [base64, setBase64] = useState<string>();
   const [mood, setMood] = useState<string>("");
   const [link, setLink] = useState<string>("");
@@ -52,12 +53,14 @@ function WritingFrom({ setSelfState, username, setStorage }: Props) {
   };
   const sendData = async () => {
     if (contentRef.current?.value || base64) {
+      setLoading(true);
       const dataObject = await makeObjectData().then((res) => res);
       const latestDoc = await addThenGetLatestDiary(dataObject).then(
         (res) => res
       );
       setStorage((prev: any) => [JSON.parse(latestDoc)[0], ...prev]);
       setSelfState(null);
+      setLoading(false);
     } else alert("write something...");
   };
   return (
@@ -123,7 +126,10 @@ function WritingFrom({ setSelfState, username, setStorage }: Props) {
       <DateTimePad datetime={datetime} setDatetime={setDatetime} />
 
       <button
-        className=" bg-weight4 w-full p-2 text-[1.5rem] rounded-lg rounded-t-none cursor-pointer hover:opacity-80 transition-all"
+        className={
+          (loading && "animate-ping") +
+          " bg-weight4 w-full p-2 text-[1.5rem] rounded-lg rounded-t-none cursor-pointer hover:opacity-80 transition-all "
+        }
         onClick={async () => await sendData()}
       >
         Save

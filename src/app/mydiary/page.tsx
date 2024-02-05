@@ -5,7 +5,7 @@ import Link from "next/link";
 import { DiaryItem } from "./DiaryItem";
 import Filter from "./Filter";
 import WritingFrom from "./WritingFrom";
-// import { addThenGetWeekly } from "../utils/firstEffectAI";
+import Setting from "./Setting";
 
 export default function Mydiary() {
   const linkRef = useRef<any>(null);
@@ -16,19 +16,18 @@ export default function Mydiary() {
   const [popupWritingForm, setPopupWritingForm] = useState<any>(null);
   const [popupEditingForm, setPopupEditingForm] = useState<any>(null);
   const [popupFilter, setPopupFilter] = useState<any>();
+  const [popupSetting, setPopupSetting] = useState<any>();
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     (async () =>
       await getUsernameFromToken().then((res) => setUsername(res)))();
     (async () =>
       await getDiary().then(async (res) => {
         const data = JSON.parse(res).reverse();
-        // let contentWeeklyByAI = await addThenGetWeekly({ data, username }).then(
-        //   (content) => content
-        // );
-        // contentWeeklyByAI = JSON.parse(contentWeeklyByAI)[0];
-        const contentWeeklyByAI: [] = [];
-        setStorage([contentWeeklyByAI, ...data]);
-        setDiaries([contentWeeklyByAI, ...data]);
+        setStorage(data);
+        setDiaries(data);
+        setLoading(false);
       }))();
   }, []);
   useEffect(() => {
@@ -41,6 +40,11 @@ export default function Mydiary() {
 
   return (
     <div className=" flex flex-col px-1 mb-5 w-[25rem]">
+      {loading && (
+        <div className=" fixed top-0 left-0 h-full w-full flex justify-center items-center z-20 animate-ping">
+          Loading...
+        </div>
+      )}
       <Link className=" hidden" ref={linkRef} href={"#"}></Link>
       <nav className=" w-full flex justify-between gap-2 p-3 sticky top-0 bg-[#edededaa] backdrop-blur-xl z-10">
         <div className=" flex flex-col gap-2">
@@ -82,7 +86,6 @@ export default function Mydiary() {
         {popupWritingForm}
         {popupEditingForm}
       </div>
-
       <article className=" flex flex-col gap-2 mb-12">
         {diaries &&
           diaries.map((item: any) => (
@@ -96,7 +99,6 @@ export default function Mydiary() {
             />
           ))}
       </article>
-
       <nav className=" fixed bottom-0 flex left-1/2 -translate-x-1/2 w-full max-w-[25rem] h-14 justify-around items-center bg-[#bfac97ee] backdrop-blur-md">
         <svg
           onClick={() => linkRef.current.click()}
@@ -162,17 +164,17 @@ export default function Mydiary() {
         >
           <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5" />
         </svg>
-        {/* <svg
-          onClick={() => alert("coming soon.")}
+        <svg
+          onClick={() => setPopupSetting(true)}
           xmlns="http://www.w3.org/2000/svg"
           width="21"
           height="21"
           fill="currentColor"
-          className="bi bi-three-dots-vertical"
+          className="bi bi-three-dots-vertical cursor-pointer"
           viewBox="0 0 16 16"
         >
           <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
-        </svg> */}
+        </svg>
       </nav>
       <div
         className={
@@ -183,6 +185,12 @@ export default function Mydiary() {
       >
         {popupFilter}
       </div>
+      {/* popup section */}
+      {popupSetting && (
+        <div className=" fixed top-0 left-0 z-10 h-full w-full">
+          {popupSetting && <Setting setSelfState={setPopupSetting} />}
+        </div>
+      )}
     </div>
   );
 }

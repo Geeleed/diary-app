@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { checkPattern, resetProcess } from "./actions";
 import { hash256 } from "../utils/hash256";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,7 @@ function Forgot(props: any): React.JSX.Element {
   const router = useRouter();
   const usernameRef = useRef<any>(null);
   const dateRef = useRef<any>(null);
+  const [loading, setLoading] = useState(false);
 
   const getUserBirth = () => {
     const username: string = usernameRef.current.value;
@@ -16,6 +17,7 @@ function Forgot(props: any): React.JSX.Element {
   };
 
   const reset = async () => {
+    setLoading(true);
     const { username, birthDate } = getUserBirth();
     if (!username || !dateRef.current.value) {
       usernameRef.current.focus();
@@ -36,10 +38,11 @@ function Forgot(props: any): React.JSX.Element {
           if (res?.canReset) {
             alert("reset password success!");
             router.push("/mydiary");
-          } else alert("password wrong!");
+          } else alert("something wrong! please try again");
         }
       }
     }
+    setLoading(false);
   };
 
   return (
@@ -58,10 +61,18 @@ function Forgot(props: any): React.JSX.Element {
         ref={dateRef}
         type="date"
       />
-      <button className=" bg-weight3 w-full p-2 rounded-lg" onClick={reset}>
+      <button
+        className={
+          (loading && "animate-ping") + " bg-weight3 w-full p-2 rounded-lg"
+        }
+        onClick={reset}
+      >
         Reset password
       </button>
-      <p className=" text-white" onClick={() => props.setResetPass(false)}>
+      <p
+        className=" text-white cursor-pointer"
+        onClick={() => props.setResetPass(false)}
+      >
         Close
       </p>
     </div>
