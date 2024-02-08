@@ -46,7 +46,7 @@ export default function Mydiary() {
         </div>
       )}
       <Link className=" hidden" ref={linkRef} href={"#"}></Link>
-      <nav className=" w-full flex justify-between gap-2 p-3 sticky top-0 bg-[#edededaa] backdrop-blur-xl z-10">
+      <nav className=" sticky w-full flex justify-between gap-2 p-3 top-0 bg-[#edededaa] backdrop-blur-xl z-10">
         <div className=" flex flex-col gap-2">
           <Link href={"#"} className=" font-bold text-[2rem] leading-none">
             {username}

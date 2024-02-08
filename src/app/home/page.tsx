@@ -41,7 +41,7 @@ function Home() {
         onClick={() => setShowHelp(false)}
         className={`${
           showHelp
-            ? " cursor-pointer absolute top-0 left-0 w-full h-[100vh] flex flex-col justify-center items-center bg-[#000000aa] text-white backdrop-blur-sm"
+            ? " cursor-pointer absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center bg-[#000000aa] text-white backdrop-blur-sm"
             : "hidden"
         }`}
       >
