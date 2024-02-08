@@ -39,7 +39,7 @@ export default function Mydiary() {
   }, [storage]);
 
   return (
-    <div className=" flex flex-col px-1 mb-5 w-[25rem]">
+    <div className=" flex flex-col px-1 mb-5 w-full">
       {loading && (
         <div className=" fixed top-0 left-0 h-full w-full flex justify-center items-center z-20 animate-ping">
           Loading...
@@ -99,7 +99,7 @@ export default function Mydiary() {
             />
           ))}
       </article>
-      <nav className=" fixed bottom-0 flex left-1/2 -translate-x-1/2 w-full max-w-[25rem] h-14 justify-around items-center bg-[#bfac97ee] backdrop-blur-md">
+      <nav className=" fixed bottom-0 flex left-1/2 -translate-x-1/2 w-full max-w-[27.5rem] h-14 justify-around items-center bg-[#bfac97ee] backdrop-blur-md">
         <svg
           onClick={() => linkRef.current.click()}
           xmlns="http://www.w3.org/2000/svg"
