@@ -18,7 +18,7 @@ function DiaryContent({ image, content, link }: Props) {
           alt=""
         />
       )}
-      <p className=" w-full break-words text-[1.4rem] leading-snug">
+      <p className=" w-full break-words text-[1.4rem] leading-snug whitespace-pre-wrap">
         {content!}
       </p>
       {link && (

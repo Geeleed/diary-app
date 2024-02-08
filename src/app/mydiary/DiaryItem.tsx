@@ -138,7 +138,7 @@ export const DiaryItem = ({
         </div>
       </h3>
       {contentAILoading && (
-        <div className=" flex w-full justify-center text-[2rem] animate-ping">
+        <div className=" flex w-full justify-center text-[2rem] animate-ping max-w-[25rem]">
           Thinking...
         </div>
       )}
