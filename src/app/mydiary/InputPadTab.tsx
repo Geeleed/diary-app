@@ -28,7 +28,7 @@ function InputPadTab({
         ref={inputImageRef}
         className=" hidden"
         onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          if (e.target.files![0].size > 4000000) {
+          if (e.target.files![0].size > 10000000) {
             alert("file size limit 4 MB");
           } else {
             const reader = new FileReader();
