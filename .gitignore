@@ -2,6 +2,10 @@
 
 note.txt
 
+sw.*
+workbox-*
+swe-worker-*
+
 # dependencies
 /node_modules
 /.pnp
